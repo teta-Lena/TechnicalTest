@@ -2,15 +2,13 @@ import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
-// import "react-phone-number-input/style.css";
-// import PhoneInput from "react-phone-number-input";
-import PhoneInput from "react-phone-input-2";
-import "react-phone-input-2/lib/style.css";
+import { toast } from "react-toastify";
+// import PhoneInput from "react-phone-input-2";
+// import "react-phone-input-2/lib/style.css";
 import axios from "axios";
 function WorkTest() {
   const [citizenship, setCitizenship] = useState();
   const [purpose_of_importation, setPurpose] = useState();
-  const [phone, setPhone] = useState();
 
   const schema = yup.object().shape({
     citizenship: yup.string().required("This field is required"),
@@ -73,12 +71,14 @@ function WorkTest() {
 
   const onSubmit = async (data) => {
     try {
-      const newPhoneNumber = `+${phone}`;
-      const PersonInfo = `${data} ${newPhoneNumber}`;
       const res = await axios.post("/businessRegistration", data);
+      console.log(res);
+      toast.success(res.data.message);
     } catch (error) {
       console.log(error);
+      toast.error(error);
     }
+    reset();
   };
 
   return (
@@ -157,17 +157,6 @@ function WorkTest() {
                   className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-1.5"
                   placeholder="Enter phone number"
                 />
-                {/* <PhoneInput
-                  placeholder="Enter phone number"
-                  type="text"
-                  id="phone"
-                  country="rw"
-                  value={phone}
-                  onChange={(phone) => setPhone(phone)}
-                  {...register("phone")}
-                  //   className="border border-gray-300 rounded-lg p-1"
-                /> */}
-
                 {errors.phone && (
                   <p className="text-red-500">{errors.phone.message}</p>
                 )}
