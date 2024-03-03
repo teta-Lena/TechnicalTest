@@ -2,17 +2,34 @@ import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
-
+// import "react-phone-number-input/style.css";
+// import PhoneInput from "react-phone-number-input";
+import PhoneInput from "react-phone-input-2";
+import "react-phone-input-2/lib/style.css";
+import axios from "axios";
 function WorkTest() {
   const [citizenship, setCitizenship] = useState();
   const [purpose_of_importation, setPurpose] = useState();
+  const [phone, setPhone] = useState();
 
   const schema = yup.object().shape({
     citizenship: yup.string().required("This field is required"),
     email: yup.string().email(),
-    phone: yup.string().required("This field is required"),
+    // phone: yup.string().required("This field is required"),
+    phone: yup
+      .string()
+      .matches(/^\d{10}$/, "Phone number must be exactly 10 digits")
+      .required("Phone number is required"),
+
     company: yup.string().required("This field is required"),
-    TIN_number: yup.string().required("This field is required"),
+    owneraddress: yup.string().required("This field is required"),
+    businessaddress: yup.string().required("This field is required"),
+
+    TIN_number: yup
+      .string()
+      .matches(/^\d{8}$/, "TIN number must be 8 digits")
+      .typeError("TIN must be a number")
+      .required("This field is required"),
     date: yup.string().required("This field is required"),
     purpose_of_importation: yup.string().required("This field is required"),
     product_category: yup.string().required("This field is required"),
@@ -20,16 +37,18 @@ function WorkTest() {
     unit_of_measurement: yup.string().required("This field is required"),
     qty: yup
       .number()
+      .typeError("Quantity must be provided")
       .min(1)
-      .integer()
-      .required(
-        "This field is required",
-        "Please provide a number greater than 0"
-      ),
-    desc: yup.string().required("This field is required"),
+      .positive()
+      .required("This field is required"),
+    description: yup.string().required("This field is required"),
     national_id:
       citizenship === "Rwandan"
-        ? yup.string().required("This field is required")
+        ? yup
+            .string()
+            .matches(/^\d{16}$/, "National ID must be exactly 16 characters")
+            .required("This field is required")
+            .typeError("National ID must be a number")
         : yup.string(),
     passport:
       citizenship === "Foreigner"
@@ -52,9 +71,14 @@ function WorkTest() {
     reset,
   } = useForm({ resolver: yupResolver(schema) });
 
-  const onSubmit = (data) => {
-    reset();
-    console.log(data);
+  const onSubmit = async (data) => {
+    try {
+      const newPhoneNumber = `+${phone}`;
+      const PersonInfo = `${data} ${newPhoneNumber}`;
+      const res = await axios.post("/businessRegistration", data);
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   return (
@@ -91,32 +115,14 @@ function WorkTest() {
 
                 <input
                   {...register("national_id")}
-                  type="text"
+                  type="number"
                   id="national_id"
+                  maxLength="16"
+                  minLength="16"
                   className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-3/4 p-1.5 mb-1"
                   placeholder="Enter national ID"
                 />
-                {/* <label className="font-bold">Other names</label>
-                <input
-                  {...register("other_names")}
-                  type="text"
-                  id="othernames"
-                  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-3/4 p-1.5"
-                />
-                <label className="font-bold">Surname</label>
-                <input
-                  {...register("surname")}
-                  type="text"
-                  id="surname"
-                  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-3/4 p-1.5"
-                />
-                <label className="font-bold">Nationality</label>
-                <input
-                  {...register("nationality")}
-                  type="text"
-                  id="nationality"
-                  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-3/4 p-1.5"
-                /> */}
+
                 {errors.national_id && (
                   <p className="text-red-500">{errors.national_id.message}</p>
                 )}
@@ -151,11 +157,22 @@ function WorkTest() {
                   className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-1.5"
                   placeholder="Enter phone number"
                 />
+                {/* <PhoneInput
+                  placeholder="Enter phone number"
+                  type="text"
+                  id="phone"
+                  country="rw"
+                  value={phone}
+                  onChange={(phone) => setPhone(phone)}
+                  {...register("phone")}
+                  //   className="border border-gray-300 rounded-lg p-1"
+                /> */}
+
                 {errors.phone && (
                   <p className="text-red-500">{errors.phone.message}</p>
                 )}
               </div>
-              <div className="w-1/3 pr-3">
+              <div className="w-1/3 ml-12 pr-3">
                 <label htmlFor="email" className="font-bold">
                   Email Address
                 </label>
@@ -179,6 +196,7 @@ function WorkTest() {
               <select
                 placeholder="Select province"
                 className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg w-2/4 mt-2 block p-2.5"
+                {...register("owneraddress")}
               >
                 <option value="">Select province</option>
                 <option value="Kigali">Kigali</option>
@@ -239,8 +257,10 @@ function WorkTest() {
                 </label>
                 <input
                   {...register("TIN_number")}
-                  type="text"
+                  type="number"
                   id="TIN"
+                  maxLength="8"
+                  minLength="8"
                   className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-1.5"
                   placeholder="Enter TIN number"
                 />
@@ -273,6 +293,7 @@ function WorkTest() {
               <select
                 placeholder="Select province"
                 className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg w-2/4 mt-2 block p-2.5"
+                {...register("businessaddress")}
               >
                 <option value="">Select province</option>
                 <option value="Kigali">Kigali</option>
@@ -403,7 +424,6 @@ function WorkTest() {
                   id="qty"
                   className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg  w-full block p-1.5"
                   placeholder="Enter quantity"
-                  min={0}
                 />
                 {errors.qty && (
                   <p className="text-red-500">{errors.qty.message}</p>
@@ -416,7 +436,7 @@ function WorkTest() {
                 Description of products
               </label>
               <textarea
-                {...register("desc")}
+                {...register("description")}
                 id="desc"
                 cols="200"
                 rows="6"

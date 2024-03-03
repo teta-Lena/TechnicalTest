@@ -6,8 +6,7 @@ import axios from "axios";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-// axios.defaults.baseURL = "https://tlxnaly-url-app.vercel.app/";
-axios.defaults.baseURL = "http://localhost:4000/";
+axios.defaults.baseURL = "http://localhost:8080";
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
     <ToastContainer />
