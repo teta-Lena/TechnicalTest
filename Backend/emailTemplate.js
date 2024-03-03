@@ -77,10 +77,10 @@ const formatEmail = (data) => {
     <p>
     Hi there, <br>
     We've successfully registerd your business! <br>
-    Below is the information you provided.
+    Below is the information you provided.<br>
     My Github Repository: https://github.com/teta-Lena/TechnicalTest.git
     </p>
-    
+
         <h2 style="text-align: center;">Business Registration Confirmation</h2>
         <table>
             <tr>
